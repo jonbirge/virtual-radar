@@ -1,0 +1,38 @@
+{
+  "name": "flight-tracker",
+  "version": "1.0.0",
+  "description": "Real-time US flight tracking using FAA data and Cesium visualization",
+  "main": "src/server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server/index.js",
+    "dev": "node --watch src/server/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "fetch:test": "node tests/harness/faa-fetcher-harness.js",
+    "api:test": "node tests/harness/api-client-harness.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "moduleFileExtensions": ["js", "mjs"],
+    "testMatch": ["**/tests/**/*.test.js"],
+    "transform": {},
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/client/**"
+    ]
+  }
+}

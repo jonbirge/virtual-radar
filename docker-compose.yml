@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  flight-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist database
+      - flight-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATA_SOURCE=opensky
+      - FETCH_INTERVAL=10
+      # Optional: Add OpenSky credentials for higher rate limits
+      # - OPENSKY_USERNAME=your_username
+      # - OPENSKY_PASSWORD=your_password
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  flight-data:

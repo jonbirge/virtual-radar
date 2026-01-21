@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  flight-tracker-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source for live reload
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - USE_MOCK_DATA=true
+      - DATA_SOURCE=opensky
+      - FETCH_INTERVAL=5
+    command: npm run dev
+    restart: unless-stopped

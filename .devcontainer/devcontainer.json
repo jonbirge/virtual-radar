@@ -1,0 +1,43 @@
+{
+  "name": "Flight Tracker Dev",
+  "dockerComposeFile": "../docker-compose.dev.yml",
+  "service": "flight-tracker-dev",
+  "workspaceFolder": "/app",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "javascript.updateImportsOnFileMove.enabled": "always"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "orta.vscode-jest",
+        "humao.rest-client",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+
+  "forwardPorts": [3000],
+
+  "postCreateCommand": "npm ci",
+
+  "remoteUser": "node",
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/data,target=/app/data,type=bind"
+  ]
+}
