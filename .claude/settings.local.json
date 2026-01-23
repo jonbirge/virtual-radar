@@ -4,7 +4,8 @@
       "Bash(npm install:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: US Flight Tracker application\n\nReal-time flight tracking web app using Cesium visualization:\n- Node.js/Express backend with SQLite file-based database\n- OpenSky Network API integration for live flight data\n- REST API for flight positions and trail history\n- Cesium 3D globe frontend with configurable polling\n- Aircraft trails persisting last 256 positions\n- Docker and dev container configuration\n- Unit tests and test harnesses\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: US Flight Tracker application\n\nReal-time flight tracking web app using Cesium visualization:\n- Node.js/Express backend with SQLite file-based database\n- OpenSky Network API integration for live flight data\n- REST API for flight positions and trail history\n- Cesium 3D globe frontend with configurable polling\n- Aircraft trails persisting last 256 positions\n- Docker and dev container configuration\n- Unit tests and test harnesses\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
     ]
   }
 }
