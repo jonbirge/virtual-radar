@@ -25,8 +25,7 @@ class FlightTracker {
       }
 
       // Initialize Cesium viewer
-      this.viewer = new Cesium.Viewer('cesiumContainer', {
-        terrainProvider: await Cesium.createWorldTerrainAsync(),
+      const viewerOptions = {
         animation: false,
         timeline: false,
         fullscreenButton: false,
@@ -38,7 +37,13 @@ class FlightTracker {
         baseLayerPicker: true,
         selectionIndicator: true,
         infoBox: true
-      });
+      };
+
+      if (this.config.cesiumAccessToken) {
+        viewerOptions.terrainProvider = await Cesium.createWorldTerrainAsync();
+      }
+
+      this.viewer = new Cesium.Viewer('cesiumContainer', viewerOptions);
 
       // Set initial camera position
       this.viewer.camera.setView({
