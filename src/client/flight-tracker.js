@@ -19,6 +19,19 @@ class FlightTracker {
 
   async init() {
     try {
+      // Fetch server config (may contain Cesium token from environment)
+      if (!this.config.cesiumAccessToken) {
+        try {
+          const resp = await fetch('/api/config');
+          const data = await resp.json();
+          if (data.success && data.config.cesiumAccessToken) {
+            this.config.cesiumAccessToken = data.config.cesiumAccessToken;
+          }
+        } catch (e) {
+          console.warn('Could not fetch server config:', e);
+        }
+      }
+
       // Set Cesium Ion token if provided
       if (this.config.cesiumAccessToken) {
         Cesium.Ion.defaultAccessToken = this.config.cesiumAccessToken;

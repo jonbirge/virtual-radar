@@ -3,11 +3,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - CESIUM_ACCESS_TOKEN=${CESIUM_ACCESS_TOKEN}
     ports:
       - "3000:3000"
     volumes:
       # Persist database
       - flight-data:/app/data
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - PORT=3000

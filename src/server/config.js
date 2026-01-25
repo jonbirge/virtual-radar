@@ -35,6 +35,9 @@ export const config = {
     apiKey: process.env.FAA_API_KEY || null
   },
 
+  // Cesium Ion access token (passed to client via /api/config)
+  cesiumAccessToken: process.env.CESIUM_ACCESS_TOKEN || '',
+
   // Data retention
   maxFlightAge: 5 * 60 * 1000,  // Remove flights not seen in 5 minutes
   maxTrailPoints: 256           // Maximum trail history per flight

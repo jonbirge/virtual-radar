@@ -28,6 +28,8 @@ RUN mkdir -p /app/data
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV DB_PATH=/app/data/flights.db
+ARG CESIUM_ACCESS_TOKEN
+ENV CESIUM_ACCESS_TOKEN=${CESIUM_ACCESS_TOKEN}
 
 # Expose port
 EXPOSE 3000

@@ -168,7 +168,8 @@ export function createApiRouter() {
       config: {
         recommendedPollInterval: config.fetchIntervalSeconds * 1000,
         maxTrailPoints: config.maxTrailPoints,
-        dataSource: config.dataSource
+        dataSource: config.dataSource,
+        cesiumAccessToken: config.cesiumAccessToken
       }
     });
   });
