@@ -54,7 +54,7 @@ class FlightTracker {
       // This is optional - the app works without a backend server
       if (!this.config.cesiumAccessToken) {
         try {
-          const resp = await fetch('/api/config');
+          const resp = await fetch('/api/config', { credentials: 'omit' });
           if (resp.ok) {
             const data = await resp.json();
             if (data.success && data.config.cesiumAccessToken) {
@@ -303,7 +303,9 @@ class FlightTracker {
       url.searchParams.set('lomin', bounds.minLon);
       url.searchParams.set('lomax', bounds.maxLon);
 
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), {
+        credentials: 'omit'  // Prevent browser auth dialog on 401
+      });
 
       if (!response.ok) {
         console.error(`OpenSky API error: ${response.status} ${response.statusText}`);
