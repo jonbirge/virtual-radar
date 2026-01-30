@@ -30,6 +30,25 @@ docker-compose up --build                              # Production build
 docker-compose -f docker-compose.dev.yml up --build   # Dev with live reload
 ```
 
+### Static Deployment
+The client files can be deployed to any static web server (nginx, Apache, S3, GitHub Pages, etc.) without needing the Node.js backend:
+
+```bash
+# Copy client files to your web server
+cp -r src/client/* /path/to/webserver/
+```
+
+Files to deploy:
+- `index.html` - Main page
+- `config.js` - Configuration
+- `flight-tracker.js` - Application logic
+- `styles.css` - Styling
+
+Optional: Pass Cesium Ion token via URL parameter for 3D terrain:
+```
+https://yoursite.com/?cesiumToken=YOUR_TOKEN
+```
+
 ## Architecture
 
 ```
@@ -40,10 +59,15 @@ CLIENT (Browser)                    OPENSKY NETWORK API
 ├── Trail visualization
 └── Interactive selection
 
-SERVER (Node.js/Express) - Static file serving only
-├── Serves client files
-└── Health check endpoint
+SERVER (Node.js/Express) - OPTIONAL
+├── Serves client files (can use any static server instead)
+├── Health check endpoint
+└── Future: server-side caching/processing (ENABLE_SERVER_FETCH=true)
 ```
+
+The client is fully self-contained and works without the Node.js server. The server is only needed for:
+- Convenience during development (`npm run dev`)
+- Future server-side features (caching, authentication, etc.)
 
 **Data Flow:**
 1. Client computes current camera view bounding box

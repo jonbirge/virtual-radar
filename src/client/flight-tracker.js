@@ -51,15 +51,19 @@ class FlightTracker {
   async init() {
     try {
       // Fetch server config (may contain Cesium token from environment)
+      // This is optional - the app works without a backend server
       if (!this.config.cesiumAccessToken) {
         try {
           const resp = await fetch('/api/config');
-          const data = await resp.json();
-          if (data.success && data.config.cesiumAccessToken) {
-            this.config.cesiumAccessToken = data.config.cesiumAccessToken;
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.success && data.config.cesiumAccessToken) {
+              this.config.cesiumAccessToken = data.config.cesiumAccessToken;
+            }
           }
+          // Silently ignore failures - expected when deployed as static files
         } catch (e) {
-          console.warn('Could not fetch server config:', e);
+          // Expected when running without a backend server (static deployment)
         }
       }
 
