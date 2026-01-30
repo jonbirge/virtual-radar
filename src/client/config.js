@@ -6,8 +6,8 @@ const ClientConfig = {
   // API endpoint (relative to current host)
   apiBaseUrl: '/api',
 
-  // Polling interval in milliseconds (default 5 seconds)
-  pollInterval: 5000,
+  // Polling interval in milliseconds (default 10 seconds)
+  pollInterval: 10000,
 
   // Maximum trail points to keep per aircraft
   maxTrailPoints: 256,
@@ -23,25 +23,44 @@ const ClientConfig = {
     height: 5000000       // 5000km up
   },
 
+  // OpenSky Network API settings
+  opensky: {
+    baseUrl: 'https://opensky-network.org/api',
+    // Default bounding box for continental US (used when camera bounds can't be computed)
+    defaultBounds: {
+      minLat: 24.396308,
+      maxLat: 49.384358,
+      minLon: -125.0,
+      maxLon: -66.93457
+    }
+  },
+
   // Aircraft display settings
   aircraft: {
     // Size of aircraft point in pixels
-    pointSize: 8,
+    pointSize: 6,
 
-    // Colors based on altitude (in feet)
+    // FAA radar-style colors based on altitude (in feet)
     altitudeColors: {
-      ground: '#888888',      // On ground
-      low: '#00ff00',         // < 10,000 ft
-      medium: '#ffff00',      // 10,000 - 25,000 ft
-      high: '#ff8800',        // 25,000 - 35,000 ft
-      cruise: '#ff0000'       // > 35,000 ft
+      ground: '#666666',      // On ground - dim gray
+      low: '#00cc00',         // < 10,000 ft - green
+      medium: '#00ff66',      // 10,000 - 25,000 ft - bright green
+      high: '#33ff99',        // 25,000 - 35,000 ft - cyan-green
+      cruise: '#66ffcc'       // > 35,000 ft - cyan
     },
 
     // Trail settings
     trail: {
-      width: 2,
-      opacity: 0.7
+      width: 1.5,
+      opacity: 0.4
     }
+  },
+
+  // Stadia Maps configuration for dark basemap
+  stadia: {
+    // Stadia Smooth Dark style URL
+    url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+    credit: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
   }
 };
 
