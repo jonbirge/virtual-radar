@@ -93,18 +93,6 @@ class FlightTracker {
 
       this.viewer = new Cesium.Viewer('cesiumContainer', viewerOptions);
 
-      // Replace default imagery with Stadia Smooth Dark as the base layer
-      const imageryLayers = this.viewer.imageryLayers;
-      imageryLayers.removeAll();
-      imageryLayers.addImageryProvider(
-        new Cesium.UrlTemplateImageryProvider({
-          url: this.config.stadia.url,
-          credit: new Cesium.Credit(this.config.stadia.credit, true),
-          minimumLevel: 0,
-          maximumLevel: 20
-        })
-      );
-
       // Set initial camera position
       this.viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(

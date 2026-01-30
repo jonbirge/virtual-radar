@@ -54,13 +54,6 @@ const ClientConfig = {
       width: 1.5,
       opacity: 0.4
     }
-  },
-
-  // Stadia Maps configuration for dark basemap
-  stadia: {
-    // Stadia Smooth Dark style URL
-    url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
-    credit: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
   }
 };
 
