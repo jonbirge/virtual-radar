@@ -1,5 +1,5 @@
 # Flight Tracker Docker Image
-FROM node:20-slim
+FROM node:25-slim
 
 # Install build dependencies for better-sqlite3
 RUN apt-get update && apt-get install -y \
