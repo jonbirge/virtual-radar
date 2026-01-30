@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-US Flight Tracker - Real-time visualization of active US flights using Cesium 3D globe with data from OpenSky Network API. Full-stack application with Node.js/Express backend and Cesium.js frontend.
+US Flight Tracker - Real-time visualization of active flights using Cesium 3D globe with data from OpenSky Network API. The client fetches flight data directly from OpenSky, filtering to the current camera view bounds.
 
 ## Commands
 
@@ -33,55 +33,45 @@ docker-compose -f docker-compose.dev.yml up --build   # Dev with live reload
 ## Architecture
 
 ```
-CLIENT (Browser)                    SERVER (Node.js/Express)
-├── Cesium Viewer (3D globe)        ├── REST API (/api/*)
-├── Flight entity management   <--> ├── Data fetcher (OpenSky/FAA)
-├── Trail visualization             ├── Scheduled updates (node-cron)
-└── Interactive selection           └── SQLite database (better-sqlite3)
+CLIENT (Browser)                    OPENSKY NETWORK API
+├── Cesium Viewer (3D globe)
+├── Direct OpenSky fetch       ---> https://opensky-network.org/api
+├── Flight entity management
+├── Trail visualization
+└── Interactive selection
+
+SERVER (Node.js/Express) - Static file serving only
+├── Serves client files
+└── Health check endpoint
 ```
 
 **Data Flow:**
-1. Server fetches from OpenSky every N seconds (configurable via `FETCH_INTERVAL`)
-2. Normalizes and upserts into SQLite database
-3. Prunes stale flights (5-minute threshold)
-4. Client polls `/api/flights` for updates
-5. Updates Cesium entities and trail polylines
+1. Client computes current camera view bounding box
+2. Client fetches flights directly from OpenSky API (every 15 seconds by default)
+3. Normalizes OpenSky state vectors to flight objects
+4. Updates Cesium entities and trail polylines
+5. Removes flights no longer in view or reported
 
 ## Key Source Files
 
-- `src/server/index.js` - Main entry point, Express setup, cron scheduling
-- `src/server/api.js` - REST API routes
-- `src/server/database.js` - SQLite management, schema, queries
-- `src/server/faa-fetcher.js` - Data source adapters (OpenSky, mock)
-- `src/server/config.js` - Server configuration from environment
-- `src/client/flight-tracker.js` - Cesium visualization logic
-- `src/client/config.js` - Client config (polling interval, altitude colors)
+- `src/client/flight-tracker.js` - Main application: Cesium viewer, OpenSky fetching, flight visualization
+- `src/client/config.js` - Client config (poll interval, OpenSky settings, altitude colors)
+- `src/server/index.js` - Express server for static file serving
 
-## API Endpoints
+## Client Configuration
 
-- `GET /api/flights` - All active flights (supports `?since=timestamp`)
-- `GET /api/flights/:id` - Specific flight
-- `GET /api/flights/:id/trail` - Trail history for flight
-- `GET /api/trails` - All trails (supports `?limit=N`)
-- `GET /api/stats` - Database statistics
-- `GET /api/config` - Server configuration for client
-- `GET /health` - Health check
+Key settings in `src/client/config.js`:
+- `pollInterval` (default: 15000ms / 15 seconds)
+- `opensky.baseUrl` - OpenSky Network API endpoint
+- `opensky.defaultBounds` - Fallback bounding box when camera bounds unavailable
+- `cesiumAccessToken` - Optional Cesium Ion token for terrain/imagery
 
 ## Environment Variables
 
-Key variables in `src/server/config.js`:
+Server-side:
 - `PORT` (default: 3000)
-- `DB_PATH` (default: ./data/flights.db)
-- `FETCH_INTERVAL` (default: 10 seconds)
-- `USE_MOCK_DATA` (default: false) - Use mock fetcher for testing
-- `OPENSKY_USERNAME` / `OPENSKY_PASSWORD` (optional, for higher rate limits)
-- `CESIUM_ACCESS_TOKEN` (optional, for Cesium Ion terrain/imagery)
-
-## Database
-
-SQLite with WAL mode. Two tables:
-- `flights` - Current flight state (id, callsign, lat/lon, altitude, velocity, heading, etc.)
-- `flight_trails` - Historical position points per aircraft (max 256 per flight)
+- `CESIUM_ACCESS_TOKEN` (optional, passed to client via /api/config)
+- `ENABLE_SERVER_FETCH` (default: false) - Set to `true` to enable server-side data fetching/caching
 
 ## Testing
 

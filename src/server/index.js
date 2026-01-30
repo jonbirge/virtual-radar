@@ -41,68 +41,80 @@ app.get('/health', (req, res) => {
 console.log('Initializing database...');
 initDatabase();
 
-// Determine fetch function based on config
-let fetchFunc = fetchFlights;
+// Server-side fetching is disabled by default (client fetches directly from OpenSky)
+// Enable with ENABLE_SERVER_FETCH=true for caching/proxy scenarios
+const enableServerFetch = process.env.ENABLE_SERVER_FETCH === 'true';
 
-// Use mock data if configured or if we want to test without external API
-if (process.env.USE_MOCK_DATA === 'true') {
-  console.log('Using mock flight data');
-  fetchFunc = createMockFetcher(150);
-}
+if (enableServerFetch) {
+  // Determine fetch function based on config
+  let fetchFunc = fetchFlights;
 
-// Fetch and store flight data
-async function updateFlightData() {
-  try {
-    console.log(`[${new Date().toISOString()}] Fetching flight data...`);
-    const startTime = Date.now();
+  // Use mock data if configured or if we want to test without external API
+  if (process.env.USE_MOCK_DATA === 'true') {
+    console.log('Using mock flight data');
+    fetchFunc = createMockFetcher(150);
+  }
 
-    const flights = await fetchFunc();
-    const fetchTime = Date.now() - startTime;
+  // Fetch and store flight data
+  async function updateFlightData() {
+    try {
+      console.log(`[${new Date().toISOString()}] Fetching flight data...`);
+      const startTime = Date.now();
 
-    if (flights.length > 0) {
-      upsertFlights(flights);
-      console.log(`  Fetched ${flights.length} flights in ${fetchTime}ms`);
-    } else {
-      console.log('  No flights returned from API');
-    }
+      const flights = await fetchFunc();
+      const fetchTime = Date.now() - startTime;
 
-    // Prune old data periodically
-    const pruneResult = pruneOldData();
-    if (pruneResult.prunedFlights > 0) {
-      console.log(`  Pruned ${pruneResult.prunedFlights} stale flights`);
-    }
+      if (flights.length > 0) {
+        upsertFlights(flights);
+        console.log(`  Fetched ${flights.length} flights in ${fetchTime}ms`);
+      } else {
+        console.log('  No flights returned from API');
+      }
 
-    const stats = getStats();
-    console.log(`  DB stats: ${stats.flightCount} flights, ${stats.trailPointCount} trail points`);
-  } catch (error) {
-    console.error('Error updating flight data:', error.message);
-    if (error.message.includes('429') || error.message.includes('rate')) {
-      console.log('  Rate limited - will retry on next interval');
+      // Prune old data periodically
+      const pruneResult = pruneOldData();
+      if (pruneResult.prunedFlights > 0) {
+        console.log(`  Pruned ${pruneResult.prunedFlights} stale flights`);
+      }
+
+      const stats = getStats();
+      console.log(`  DB stats: ${stats.flightCount} flights, ${stats.trailPointCount} trail points`);
+    } catch (error) {
+      console.error('Error updating flight data:', error.message);
+      if (error.message.includes('429') || error.message.includes('rate')) {
+        console.log('  Rate limited - will retry on next interval');
+      }
     }
   }
+
+  // Schedule data fetching
+  const fetchInterval = config.fetchIntervalSeconds;
+  console.log(`Scheduling data fetch every ${fetchInterval} seconds...`);
+
+  // Use node-cron for reliable scheduling
+  const cronExpression = `*/${fetchInterval} * * * * *`;
+  cron.schedule(cronExpression, updateFlightData);
+
+  // Initial fetch
+  updateFlightData();
+} else {
+  console.log('Server-side fetching disabled (client fetches directly from OpenSky)');
+  console.log('Set ENABLE_SERVER_FETCH=true to enable server-side data caching');
 }
-
-// Schedule data fetching
-const fetchInterval = config.fetchIntervalSeconds;
-console.log(`Scheduling data fetch every ${fetchInterval} seconds...`);
-
-// Use node-cron for reliable scheduling
-const cronExpression = `*/${fetchInterval} * * * * *`;
-cron.schedule(cronExpression, updateFlightData);
-
-// Initial fetch
-updateFlightData();
 
 // Start server
 const server = app.listen(config.port, () => {
   console.log(`Flight Tracker server running on port ${config.port}`);
-  console.log(`Data source: ${config.dataSource}`);
-  console.log(`API endpoints:`);
-  console.log(`  GET /api/flights       - Get all active flights`);
-  console.log(`  GET /api/flights/:id   - Get specific flight`);
-  console.log(`  GET /api/flights/:id/trail - Get flight trail history`);
-  console.log(`  GET /api/trails        - Get all trails`);
-  console.log(`  GET /api/stats         - Get statistics`);
+  console.log(`Mode: ${enableServerFetch ? 'Server fetching enabled' : 'Client-side fetching (default)'}`);
+  if (enableServerFetch) {
+    console.log(`Data source: ${config.dataSource}`);
+    console.log(`API endpoints:`);
+    console.log(`  GET /api/flights       - Get all active flights`);
+    console.log(`  GET /api/flights/:id   - Get specific flight`);
+    console.log(`  GET /api/flights/:id/trail - Get flight trail history`);
+    console.log(`  GET /api/trails        - Get all trails`);
+    console.log(`  GET /api/stats         - Get statistics`);
+  }
   console.log(`  GET /api/config        - Get client configuration`);
   console.log(`Client UI available at http://localhost:${config.port}/`);
 });
